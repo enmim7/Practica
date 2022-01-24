@@ -1,0 +1,323 @@
+package liga_esportiva;
+
+import java.util.Scanner;
+import java.io.FileReader;
+import java.io.FileWriter;
+import java.io.IOException;
+import java.io.OutputStreamWriter;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+
+public class futbol {
+
+    // public var
+
+    // keyboard menu
+
+    public static Scanner keyboard = new Scanner(System.in);
+
+    // Arrays equips + puntuacions
+
+    public static String[] teams;
+    public static int[][] scores;
+
+    // boolean exit menu
+
+    public static boolean exit;
+    public static boolean exit2;
+
+    public static void main(String[] args) throws Exception {
+        firstRead();// Metode per incrementa el array dinamicament
+        addTextInArray(); // Metode per introduir les dades als arrays
+
+        do {
+            System.out.println("\n*** LA LLIGA ***\n");
+            System.out.println("1. Visualitzar equips");
+            System.out.println("2. Afeixir equip");
+            System.out.println("3. Modificar equip");
+            System.out.println("4. Visualitzar estadistiques del lider");
+            System.out.println("5. Sortir");
+            System.out.println("\n Tria opcio");
+
+            while (!keyboard.hasNextInt()) {
+                System.out.println("Error");
+                keyboard.next();
+                System.out.println("Introdueix un número del menú");
+            }
+
+            int select = keyboard.nextInt();
+
+            switch (select) {
+                case 1:
+                    // show teams + score
+                    showTeam();
+                    break;
+                case 2:
+                    // add teams
+                    addTeam();
+                    break;
+                case 3:
+                    // modify teams
+                    modifyTeam();
+                    break;
+                case 4:
+                    // first and last team
+                    rankDerrank();
+                    break;
+                case 5:
+                    exit = true;
+                    System.out.println("\nBye!\n");
+                    break;
+            }
+        } while (!exit);
+    }
+
+    public static void firstRead() throws FileNotFoundException, IOException {
+        try (BufferedReader bf = new BufferedReader(
+                new FileReader("C:\\Users\\gf\\Desktop\\liga_esportiva\\equips\\teams.txt"))) {
+            int index = 0;
+            while ((bf.readLine()) != null) {
+                index++;
+            }
+            teams = new String[index];
+            scores = new int[index][5];
+
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private static void addTextInArray() throws IOException {
+
+        try (BufferedReader bf = new BufferedReader(
+                new FileReader("C:\\Users\\gf\\Desktop\\liga_esportiva\\equips\\teams.txt"))) {
+            String readtxt;
+            int index = 0;
+            while ((readtxt = bf.readLine()) != null) {
+                System.out.println(readtxt);
+
+                int divideTeam = readtxt.indexOf(":");
+
+                String nameTeam = (readtxt.substring(0, divideTeam));
+                System.out.println();
+
+                // add team into array
+                teams[index] = nameTeam;
+
+                int divideScore = readtxt.indexOf(":");
+
+                String score = readtxt.substring(divideScore + 1);
+                String array[] = score.split(":");
+                for (int i = 0; i < array.length; i++) {
+                    // add scores into array
+                    scores[index][i] = Integer.parseInt(array[i]);
+                }
+                index++;
+            }
+        } catch (NumberFormatException e) {
+            e.printStackTrace();
+        }
+
+        System.out.println("The data has been loaded successfully" + "\n");
+    }
+
+    private static void showTeam() throws IOException {
+        System.out.println();
+
+        System.out.println("                                           EQUIPS " + " " + "PARTITS JUGATS " + "    "
+                + "GUANYATS " + "     " + "EMPATATS " + "        "
+                + "PERDUTS " + "   " + "PUNTS TOTALS ");
+        System.out.println(
+                "                                           ________________________________________________________________________________"
+                        + "\n");
+        for (int i = 0; i < scores.length; i++) {
+            System.out.format("%50s", teams[i] + "\t");
+            for (int j = 0; j < scores[j].length; j++) {
+                System.out.print(scores[i][j] + "\t\t");
+            }
+            System.out.println();
+        }
+
+    }
+
+    private static void addTeam() throws FileNotFoundException, IOException {
+
+        // Method 1 insert data
+
+        String team;
+        int numPlay;
+        int numWin;
+        int numTie;
+        int numLose;
+
+        // insert text txt/array
+
+        Scanner keyboard = new Scanner(System.in);
+
+        System.out.print("Introdueix el nom del equip: ");
+        team = keyboard.nextLine();
+
+        System.out.print("Numero de partits jugats?: ");
+        numPlay = keyboard.nextInt();
+
+        System.out.print("Numero de partits guanyats? : ");
+        numWin = keyboard.nextInt();
+
+        System.out.print("Numero de partits empatats?: ");
+        numTie = keyboard.nextInt();
+
+        System.out.print("Numero de partits perduts?: ");
+        numLose = keyboard.nextInt();
+
+        // Per calcula els punts automaticament
+
+        int points = numWin * 3 + numTie * 1;
+
+        // Print per informacio del equip afeixit per pantalla
+
+        System.out.println("\nL'equip del " + team + " a jugat " + numPlay + " partits," + " ha guanyat " + numWin +
+                ", ha enpatat " + numTie + " , ha perdut " + numLose + ", te en total " + points + " punts." + "\n");
+
+        String teamFile = "C:\\Users\\gf\\Desktop\\liga_esportiva\\equips\\teams.txt";
+        File file = new File(teamFile);
+
+        try {
+
+            if (!file.exists()) {
+                file.createNewFile();
+            }
+            /*
+             * Obre un Flux d'escriptura sobre el fitxer amb codificació utf-8.
+             * A més al tros de sentència "FileOutputStream(Ffitxer,true)",
+             * true és per si existeix el fitxer seguir afegint text i no esborrar el que
+             * tenia.
+             */
+
+            BufferedWriter bufferedWriter = new BufferedWriter(
+                    new OutputStreamWriter(new FileOutputStream(file, true), "utf-8"));
+            //
+
+            bufferedWriter.write(team + ":" + numPlay + ":" + numWin +
+                    ":" + numTie + ":" + numLose + ":" + points);
+            // line break txt
+            bufferedWriter.newLine();
+
+            System.out.println("Les dades s'han desat correctament\n");
+            // close file
+
+            // close flux writing
+            bufferedWriter.close();
+        } catch (Exception ex) {
+            // message error?
+            System.out.println(ex.getMessage());
+
+        }
+        firstRead();
+        addTextInArray();
+    }
+
+    private static void modifyTeam() throws IOException {
+
+        do {
+            System.out.println("1. Canviar nom del equip");
+            System.out.println("2. Canviar puntuacions");
+            System.out.println("3. Torna enrere");
+            System.out.println("\n Tria opcio");
+
+            while (!keyboard.hasNextInt()) {
+                System.out.println("Error");
+                keyboard.next();
+                System.out.println("Introdueix un número del menú");
+            }
+
+            int select = keyboard.nextInt();
+
+            switch (select) {
+                case 1:
+                    // Instantiating the File class
+                    String filePath = "C:\\Users\\gf\\Desktop\\liga_esportiva\\equips\\teams.txt";
+                    // Instantiating the Scanner class to read the file
+                    Scanner sc = new Scanner(new File(filePath));
+                    // instantiating the StringBuffer class
+                    StringBuffer buffer = new StringBuffer();
+                    // Reading lines of the file and appending them to StringBuffer
+                    while (sc.hasNextLine()) {
+                        buffer.append(sc.nextLine() + System.lineSeparator());
+                    }
+                    String fileContents = buffer.toString();
+                    System.out.println("Contingut del fitxer:\n\n" + fileContents);
+                    // closing the Scanner object
+                    sc.close();
+
+                    Scanner keyboard = new Scanner(System.in);
+
+                    String oldLine;
+                    String newLine;
+
+                    System.out.print("Introdueix el nom del equip que vols modificar: ");
+                    oldLine = keyboard.nextLine();
+                    System.out.println("Quin nom li vols posar?");
+                    newLine = keyboard.nextLine();
+
+                    // Replacing the old line with new line
+                    fileContents = fileContents.replaceAll(oldLine, newLine);
+                    // instantiating the FileWriter class
+                    FileWriter writer = new FileWriter(filePath);
+                    System.out.println("");
+                    System.out.println("Canvi realitzat correctament: " + "\n\n" + fileContents);
+                    writer.append(fileContents);
+                    writer.flush();
+
+                    break;
+                case 2:
+                    System.out.println("no se com feru");
+                    break;
+                case 3:
+                    exit2 = true;
+                    break;
+                default:
+            }
+        } while (!exit2);
+        firstRead();
+        addTextInArray();
+    }
+
+    private static void rankDerrank() throws IOException {
+
+        try (BufferedReader bf = new BufferedReader(
+                new FileReader("C:\\Users\\gf\\Desktop\\liga_esportiva\\equips\\teams.txt"))) {
+            String readtxt;
+            int[] min_max = new int[teams.length];
+            int i = 0;
+            while ((readtxt = bf.readLine()) != null) {
+
+                // Aqui guardem els valors de les puntuacions en el array, i amb la condicio
+                // trobem el min i el max
+                min_max[i] = Integer.parseInt(readtxt.substring(readtxt.length() - 2));
+                i++;
+            }
+            int min = 100;
+            int max = 0;
+            int maxTeam = 0;
+            int minTeam = 0;
+            for (int j = 0; j < min_max.length; j++) {
+
+                if (min_max[j] < min) {
+                    min = min_max[j];
+                    minTeam = j;
+                }
+                if (min_max[j] > max) {
+                    max = min_max[j];
+                    maxTeam = j;
+
+                }
+            }
+            System.out.println("El equip del " + teams[maxTeam] + " va primer amb " + max + " punts.");
+            System.out.println("El equip del " + teams[minTeam] + " va ultim amb " + min + " punts.");
+
+        }
+    }
+}
